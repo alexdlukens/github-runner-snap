@@ -1,0 +1,60 @@
+name: github-runner # you probably want to 'snapcraft register <name>'
+base: core24 # the base snap is the execution environment for this snap
+version: '0.1'
+summary: A snap to encapsulate the Github runner process
+description: |
+  This snap sets up a self-hosted github runner. 
+  For more information on self-hosted runners, see the Github Actions docs: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners
+
+
+  Required configuration:
+
+  After installing the snap, the runner must be configured to connect to Github using a token, url, and optional runnergroup
+
+  To configure the runner, run the following commands:
+
+  ```bash
+  snap set github-runner token=<token> url=<url> [runnergroup=<runnergroup>]
+
+  Available configuration options:
+  token (required): the token to authenticate the runner with github
+  url (required): the url of the github repository/organization to add the runner to
+  runnergroup (optional): the runnergroup to add the runner to
+  runnername (optional): defaults to {hostname}-snap-{8 character uuid}
+  ```
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: devmode # use 'strict' once you have the right plugs and slots
+
+parts:
+  main-runner:
+    plugin: nil
+    source: .
+    override-pull: |
+      craftctl default
+      # use download script to get the runner
+      $CRAFT_PART_SRC/scripts/download.sh
+    override-build: |
+      # copy dir to install
+      cp -r $CRAFT_PART_SRC/actions-runner $CRAFT_PART_INSTALL/actions-runner
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cp $CRAFT_PART_SRC/scripts/wrapper.sh $CRAFT_PART_INSTALL/bin/wrapper.sh
+    stage-packages:
+      - liblttng-ust1t64
+      - musl-dev
+      - libkrb5-3
+      - zlib1g
+      - libicu74
+      - libssl3t64
+
+
+apps:
+  github-runner:
+    command: scripts/wrapper.sh
+    plugs: [network, network-bind]
+    environment:
+      RUNNER_ALLOW_RUNASROOT: "1"
+
+hooks:
+    configure:
+        plugs: [network]

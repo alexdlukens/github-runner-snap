@@ -1,0 +1,33 @@
+#!/bin/sh -e
+
+# make dir for config options
+mkdir -p $SNAP_DATA/options
+# check configuration for token and repo
+RUNNERGROUP=$(snapctl get runnergroup)
+TOKEN=$(snapctl get token)
+URL=$(snapctl get url)
+RUNNER_NAME=$(snapctl get runnername)
+export RUNNER_ALLOW_RUNASROOT="1"
+
+if  [ -z "$TOKEN" ] || [ -z "$URL" ]; then
+    echo -e "Please configure the token and url using the command: \nsnap set github-runner token=... url=..."
+    exit 0
+fi
+
+# set name based on hostname-snap-uuid 8 characters
+if [ -z "$RUNNER_NAME" ]; then
+    EIGHT_UUID=$(cat /proc/sys/kernel/random/uuid | cut -c 1-8)
+    RUNNER_NAME=$(hostname)-snap-$EIGHT_UUID
+fi
+
+# save config values into config folder
+echo $RUNNERGROUP > $SNAP_DATA/options/runnergroup
+echo $TOKEN > $SNAP_DATA/options/token
+echo $URL > $SNAP_DATA/options/url
+echo $RUNNER_NAME > $SNAP_DATA/options/runner_name
+
+if [ -z "$RUNNERGROUP" ]; then
+    cd $SNAP_DATA && RUNNER_ALLOW_RUNASROOT="1" $SNAP_DATA/actions-runner/config.sh --url $URL --token $TOKEN --unattended --name $RUNNER_NAME
+else
+    cd $SNAP_DATA && RUNNER_ALLOW_RUNASROOT="1" $SNAP_DATA/actions-runner/config.sh --url $URL --token $TOKEN --runnergroup $RUNNERGROUP --unattended --name $RUNNER_NAME
+fi

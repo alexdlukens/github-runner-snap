@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+# copy $SNAP/actions-runner to $SNAP_DATA
+
+cp -r $SNAP/actions-runner $SNAP_DATA

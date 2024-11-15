@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+# check if token file exists at $SNAP_DATA/options/token
+if [ ! -f $SNAP_DATA/options/token ]; then
+    echo "No token found, exiting"
+    exit 0
+fi
+TOKEN=$(cat $SNAP_DATA/options/token)
+cd $SNAP_DATA && RUNNER_ALLOW_RUNASROOT="1" $SNAP_DATA/actions-runner/config.sh remove --token $TOKEN
+
+exit 0
