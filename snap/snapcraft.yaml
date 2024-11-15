@@ -37,8 +37,8 @@ parts:
     override-build: |
       # copy dir to install
       cp -r $CRAFT_PART_SRC/actions-runner $CRAFT_PART_INSTALL/actions-runner
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      cp $CRAFT_PART_SRC/scripts/wrapper.sh $CRAFT_PART_INSTALL/bin/wrapper.sh
+      mkdir -p $CRAFT_PART_INSTALL/scripts
+      cp $CRAFT_PART_SRC/scripts/wrapper.sh $CRAFT_PART_INSTALL/scripts/wrapper.sh
     stage-packages:
       - liblttng-ust1t64
       - musl-dev
