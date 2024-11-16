@@ -24,7 +24,9 @@ description: |
   ```
 
 grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+
+# Github issue on actions/runner project: https://github.com/actions/runner/issues/1630
+confinement: classic # needs access to "each directory up the hierarchy", so confinement is not possible
 
 parts:
   main-runner:
